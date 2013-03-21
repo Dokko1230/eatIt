@@ -16,6 +16,7 @@ bgImage.src = "images/background.png";
 // Hero image
 var heroReady = false;
 var heroImage = new Image();
+
 heroImage.onload = function () {
 	heroReady = true;
 };
@@ -29,9 +30,21 @@ monsterImage.onload = function () {
 };
 monsterImage.src = "images/monster.png";
 
+
+// speed_up image
+var speed_up_ready = false;
+var speed_up_image = new Image();
+speed_up_image.onload = function() {
+	speed_up_ready = true;
+};
+speed_up_image.src = "images/speed_up.png";
+var speed_up = {};
+
 // Game objects
 var hero = {
-	speed: 256 // movement in pixels per second
+	speed: 256, // movement in pixels per second
+	x: canvas.width / 2,
+	y: canvas.height / 2
 };
 var monster = {};
 var monstersCaught = 0;
@@ -51,8 +64,12 @@ addEventListener("keyup", function (e) {
 
 // Reset the game when the player catches a monster
 var reset = function () {
-	hero.x = canvas.width / 2;
-	hero.y = canvas.height / 2;
+
+	//Randomly place the speed up
+	if(Math.floor(Math.random() * 100) > 90) {
+		speed_up.x = 32 + (Math.random() * (canvas.width - 64));
+		speed_up.y = 32 + (Math.random() * (canvas.height - 64));
+	}
 
 	// Throw the monster somewhere on the screen randomly
 	monster.x = 32 + (Math.random() * (canvas.width - 64));
@@ -84,6 +101,17 @@ var update = function (modifier) {
 		++monstersCaught;
 		reset();
 	}
+
+	if (
+		hero.x <= (speed_up.x + 32)
+		&& speed_up.x <= (hero.x + 32)
+		&& hero.y <= (speed_up.y + 32)
+		&& speed_up.y <= (hero.y + 32)
+	) {
+		changeSpeed(512);
+		removeSpeedup();
+	}
+	
 };
 
 // Draw everything
@@ -98,6 +126,10 @@ var render = function () {
 
 	if (monsterReady) {
 		ctx.drawImage(monsterImage, monster.x, monster.y);
+	}
+
+	if (speed_up_ready) {
+		ctx.drawImage(speed_up_image, speed_up.x, speed_up.y, 30, 30);
 	}
 
 	// Score
@@ -173,3 +205,19 @@ reset();
 var then = Date.now();
 setInterval(main, 1); // Execute as fast as possible
 CreateTimer(30);
+
+function changeSpeed(speed){
+	hero.speed = speed;
+	window.setTimeout(function() {
+		hero.speed = 256;
+	}, 3000);
+}
+
+function createSpeedups(speed) {
+	changeSpeed(speed);
+}
+
+function removeSpeedup(){
+	speed_up.x = 1000;
+	speed_up.y = 1000;
+}
