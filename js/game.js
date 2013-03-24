@@ -41,12 +41,22 @@ speed_up_image.onload = function() {
 speed_up_image.src = "images/speed_up.png";
 var speed_up = {};
 
+// clock image
+var clock_ready = false;
+var clock_image = new Image();
+clock_image.onload = function() {
+	clock_ready = true;
+};
+clock_image.src = "images/clock.png";
+var clock = {};
+
 // Game objects
 var hero = {
 	speed: 256, // movement in pixels per second
 	x: canvas.width / 2,
 	y: canvas.height / 2
 };
+
 var monster = {};
 var monstersCaught = 0;
 var top_score = 0;
@@ -70,6 +80,19 @@ var reset = function () {
 	if(Math.floor(Math.random() * 100) > 90) {
 		speed_up.x = 32 + (Math.random() * (canvas.width - 64));
 		speed_up.y = 32 + (Math.random() * (canvas.height - 64));
+		window.setTimeout(function() {
+			removeSpeedup();
+		}, 2000);
+	}
+
+	//Randomly place the clock up
+	if(Math.floor(Math.random() * 100) > 90) {
+		clock.x = 32 + (Math.random() * (canvas.width - 64));
+		clock.y = 32 + (Math.random() * (canvas.height - 64));
+		window.setTimeout(function() {
+			removeClock();
+		}, 2000);
+		
 	}
 
 	// Throw the monster somewhere on the screen randomly
@@ -112,6 +135,16 @@ var update = function (modifier) {
 		changeSpeed(512);
 		removeSpeedup();
 	}
+
+	if (
+		hero.x <= (clock.x + 32)
+		&& clock.x <= (hero.x + 32)
+		&& hero.y <= (clock.y + 32)
+		&& clock.y <= (hero.y + 32)
+	) {
+		removeClock();
+		changeTime(7);
+	}
 	
 };
 
@@ -131,6 +164,10 @@ var render = function () {
 
 	if (speed_up_ready) {
 		ctx.drawImage(speed_up_image, speed_up.x, speed_up.y, 30, 30);
+	}
+
+	if (clock_ready) {
+		ctx.drawImage(clock_image, clock.x, clock.y, 30, 30);
 	}
 
 	// Score
@@ -221,4 +258,13 @@ function createSpeedups(speed) {
 function removeSpeedup(){
 	speed_up.x = 1000;
 	speed_up.y = 1000;
+}
+
+function removeClock() {
+	clock.x = 1000;
+	clock.y = 1000;
+}
+
+function changeTime(time) {
+	TotalSeconds += 7;
 }
